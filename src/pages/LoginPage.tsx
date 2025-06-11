@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, User, Lock, Mail } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -7,7 +7,7 @@ import { t } from '../data/translations';
 
 const LoginPage: React.FC = () => {
   const { language } = useLanguage();
-  const { login, register, loading, user } = useAuth();
+  const { login, register, loading } = useAuth();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,34 +19,8 @@ const LoginPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user && !loading) {
-      navigate(user.isAdmin ? '/admin' : '/dashboard');
-    }
-  }, [user, loading, navigate]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.email.trim() || !formData.password.trim()) {
-      setError(
-        language === 'en' ? 'Please fill in all fields' 
-        : language === 'az' ? 'Bütün sahələri doldurun'
-        : 'Заполните все поля'
-      );
-      return;
-    }
-
-    if (!isLogin && !formData.name.trim()) {
-      setError(
-        language === 'en' ? 'Please enter your name' 
-        : language === 'az' ? 'Adınızı daxil edin'
-        : 'Введите ваше имя'
-      );
-      return;
-    }
-
     setIsSubmitting(true);
     setError('');
 
@@ -60,7 +34,7 @@ const LoginPage: React.FC = () => {
       }
 
       if (success) {
-        // Navigation will be handled by useEffect when user state updates
+        navigate('/dashboard');
       } else {
         setError(
           isLogin
@@ -69,7 +43,6 @@ const LoginPage: React.FC = () => {
         );
       }
     } catch (err) {
-      console.error('Auth error:', err);
       setError(
         language === 'en' ? 'An error occurred. Please try again.' 
         : language === 'az' ? 'Xəta baş verdi. Yenidən cəhd edin.'
@@ -88,21 +61,9 @@ const LoginPage: React.FC = () => {
     setError('');
   };
 
-  const fillDemoCredentials = (type: 'admin' | 'user') => {
-    if (type === 'admin') {
-      setFormData({
-        email: 'admin@gmail.com',
-        password: 'admin123',
-        name: 'Admin User'
-      });
-    } else {
-      setFormData({
-        email: 'user@example.com',
-        password: 'user123',
-        name: 'Demo User'
-      });
-    }
-    setError('');
+  const handleDemoLogin = (email: string, password: string) => {
+    setFormData({ email, password, name: '' });
+    setIsLogin(true);
   };
 
   if (loading) {
@@ -267,41 +228,38 @@ const LoginPage: React.FC = () => {
           {/* Demo credentials info */}
           <div className="mt-8 p-4 bg-gray-50 rounded-xl">
             <h3 className="text-sm font-semibold text-gray-800 mb-3">
-              {language === 'en' ? 'Demo Credentials:' : language === 'az' ? 'Demo Giriş Məlumatları:' : 'Демо Данные:'}
+              {language === 'en' ? 'Demo Instructions:' : language === 'az' ? 'Demo Təlimatları:' : 'Демо Инструкции:'}
             </h3>
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={() => fillDemoCredentials('admin')}
-                className="w-full text-left p-2 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
-              >
-                <div className="text-sm">
-                  <strong className="text-purple-700">
-                    {language === 'en' ? 'Admin Account:' : language === 'az' ? 'Admin Hesabı:' : 'Админ Аккаунт:'}
-                  </strong>
-                  <div className="text-gray-600">admin@gmail.com / admin123</div>
-                </div>
-              </button>
+            <div className="text-sm text-gray-600 space-y-2">
+              <p>
+                <strong>1. {language === 'en' ? 'Create Admin Account:' : language === 'az' ? 'Admin Hesabı Yaradın:' : 'Создайте Админ Аккаунт:'}</strong>
+              </p>
+              <p className="ml-4">
+                {language === 'en' ? 'Register with email: admin@gmail.com' : language === 'az' ? 'E-poçt ilə qeydiyyat: admin@gmail.com' : 'Зарегистрируйтесь с email: admin@gmail.com'}
+              </p>
+              <p className="ml-4">
+                {language === 'en' ? '(Will automatically get admin privileges)' : language === 'az' ? '(Avtomatik admin hüquqları alacaq)' : '(Автоматически получит права админа)'}
+              </p>
               
-              <button
-                type="button"
-                onClick={() => fillDemoCredentials('user')}
-                className="w-full text-left p-2 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-              >
-                <div className="text-sm">
-                  <strong className="text-blue-700">
-                    {language === 'en' ? 'User Account:' : language === 'az' ? 'İstifadəçi Hesabı:' : 'Пользователь:'}
-                  </strong>
-                  <div className="text-gray-600">user@example.com / user123</div>
-                </div>
-              </button>
+              <p className="mt-3">
+                <strong>2. {language === 'en' ? 'Or create any user account:' : language === 'az' ? 'Və ya istənilən istifadəçi hesabı yaradın:' : 'Или создайте любой пользовательский аккаунт:'}</strong>
+              </p>
+              <p className="ml-4">
+                {language === 'en' ? 'Use any email and password combination' : language === 'az' ? 'İstənilən e-poçt və şifrə kombinasiyası istifadə edin' : 'Используйте любую комбинацию email и пароля'}
+              </p>
             </div>
             
-            <p className="text-xs text-gray-500 mt-3">
-              {language === 'en' ? 'Click on any demo account to auto-fill the form, or register with any email/password.' 
-              : language === 'az' ? 'Formu avtomatik doldurmaq üçün istənilən demo hesaba klikləyin və ya istənilən e-poçt/şifrə ilə qeydiyyatdan keçin.'
-              : 'Нажмите на любой демо-аккаунт для автозаполнения формы или зарегистрируйтесь с любым email/паролем.'}
-            </p>
+            {isLogin && (
+              <div className="mt-4 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin('admin@gmail.com', 'admin123')}
+                  className="w-full text-left px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 hover:bg-blue-100 transition-colors"
+                >
+                  {language === 'en' ? '🔧 Fill Admin Demo (if account exists)' : language === 'az' ? '🔧 Admin Demo Doldur (hesab varsa)' : '🔧 Заполнить Админ Демо (если аккаунт существует)'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
