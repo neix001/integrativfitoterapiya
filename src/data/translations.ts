@@ -1,86 +1,288 @@
-import { Language } from '../types';
+export const t = (key: string, language: string): string => {
+  const translations: Record<string, Record<string, string>> = {
+    // Navigation
+    'nav.home': {
+      en: 'Home',
+      az: 'Ana Səhifə',
+      ru: 'Главная'
+    },
+    'nav.blog': {
+      en: 'Blog',
+      az: 'Bloq',
+      ru: 'Блог'
+    },
+    'nav.shop': {
+      en: 'Programs',
+      az: 'Proqramlar',
+      ru: 'Программы'
+    },
+    'nav.classes': {
+      en: 'Live Classes',
+      az: 'Canlı Dərslər',
+      ru: 'Живые Занятия'
+    },
+    'nav.contact': {
+      en: 'Contact',
+      az: 'Əlaqə',
+      ru: 'Контакт'
+    },
+    'nav.login': {
+      en: 'Login',
+      az: 'Giriş',
+      ru: 'Вход'
+    },
+    'nav.logout': {
+      en: 'Logout',
+      az: 'Çıxış',
+      ru: 'Выход'
+    },
+    'nav.dashboard': {
+      en: 'Dashboard',
+      az: 'Panel',
+      ru: 'Панель'
+    },
+    'nav.admin': {
+      en: 'Admin',
+      az: 'Admin',
+      ru: 'Админ'
+    },
 
-export const translations: Record<string, Record<Language, string>> = {
-  // Navigation
-  'nav.home': { en: 'Home', az: 'Ana Səhifə', ru: 'Главная' },
-  'nav.blog': { en: 'Blog', az: 'Bloq', ru: 'Блог' },
-  'nav.shop': { en: 'Shop', az: 'Mağaza', ru: 'Магазин' },
-  'nav.classes': { en: 'Live Classes', az: 'Canlı Dərslər', ru: 'Живые Классы' },
-  'nav.contact': { en: 'Contact', az: 'Əlaqə', ru: 'Контакты' },
-  'nav.login': { en: 'Login', az: 'Giriş', ru: 'Вход' },
-  'nav.dashboard': { en: 'Dashboard', az: 'Panel', ru: 'Панель' },
-  'nav.admin': { en: 'Admin', az: 'Admin', ru: 'Админ' },
-  'nav.logout': { en: 'Logout', az: 'Çıxış', ru: 'Выход' },
+    // Home page
+    'home.hero.title': {
+      en: 'Transform Your Health with Expert Nutrition',
+      az: 'Ekspert Qida ilə Sağlamlığınızı Dəyişdirin',
+      ru: 'Преобразите Свое Здоровье с Экспертным Питанием'
+    },
+    'home.hero.subtitle': {
+      en: 'Discover personalized nutrition programs, expert guidance, and live classes designed to help you achieve your wellness goals.',
+      az: 'Sağlamlıq məqsədlərinizə nail olmaq üçün nəzərdə tutulmuş fərdi qida proqramları, ekspert rehbərliyi və canlı dərslər kəşf edin.',
+      ru: 'Откройте для себя персонализированные программы питания, экспертное руководство и живые занятия, разработанные для достижения ваших целей в области здоровья.'
+    },
+    'home.cta.explore': {
+      en: 'Explore Programs',
+      az: 'Proqramları Araşdır',
+      ru: 'Изучить Программы'
+    },
+    'home.cta.classes': {
+      en: 'Live Classes',
+      az: 'Canlı Dərslər',
+      ru: 'Живые Занятия'
+    },
 
-  // Language Selection
-  'lang.select': { en: 'Select Language', az: 'Dil Seçin', ru: 'Выберите Язык' },
-  'lang.welcome': { en: 'Welcome to NutriLife', az: 'NutriLife-a Xoş Gəlmisiniz', ru: 'Добро пожаловать в NutriLife' },
-  'lang.choose': { en: 'Please choose your preferred language to continue', az: 'Davam etmək üçün üstünlük verdiyiniz dili seçin', ru: 'Пожалуйста, выберите предпочитаемый язык для продолжения' },
+    // Features
+    'features.programs.title': {
+      en: 'Personalized Programs',
+      az: 'Fərdi Proqramlar',
+      ru: 'Персонализированные Программы'
+    },
+    'features.programs.desc': {
+      en: 'Tailored nutrition plans designed specifically for your goals, lifestyle, and dietary preferences.',
+      az: 'Məqsədləriniz, həyat tərziniz və qida üstünlükləriniz üçün xüsusi olaraq hazırlanmış qida planları.',
+      ru: 'Индивидуальные планы питания, разработанные специально для ваших целей, образа жизни и диетических предпочтений.'
+    },
+    'features.classes.title': {
+      en: 'Live Expert Classes',
+      az: 'Canlı Ekspert Dərslər',
+      ru: 'Живые Экспертные Занятия'
+    },
+    'features.classes.desc': {
+      en: 'Interactive sessions with certified nutritionists to learn, ask questions, and get real-time guidance.',
+      az: 'Öyrənmək, sual vermək və real vaxt rehbərliyi almaq üçün sertifikatlı qida mütəxəssisləri ilə interaktiv sessiyalar.',
+      ru: 'Интерактивные сессии с сертифицированными нутрициологами для обучения, вопросов и получения руководства в реальном времени.'
+    },
+    'features.support.title': {
+      en: '24/7 Support',
+      az: '24/7 Dəstək',
+      ru: 'Поддержка 24/7'
+    },
+    'features.support.desc': {
+      en: 'Get continuous support from our team of experts whenever you need guidance on your health journey.',
+      az: 'Sağlamlıq səyahətinizdə rehbərliyə ehtiyacınız olduqda ekspert komandamızdan davamlı dəstək alın.',
+      ru: 'Получайте постоянную поддержку от нашей команды экспертов, когда вам нужно руководство в вашем путешествии к здоровью.'
+    },
 
-  // Homepage
-  'home.hero.title': { en: 'Transform Your Life with Nutrition', az: 'Qidamla Həyatınızı Dəyişdirin', ru: 'Преобразите Свою Жизнь с Питанием' },
-  'home.hero.subtitle': { en: 'Professional diet programs, live classes, and expert guidance for a healthier you', az: 'Daha sağlam sizin üçün peşəkar diet proqramları, canlı dərslər və ekspert rehbərliyi', ru: 'Профессиональные диетические программы, живые занятия и экспертное руководство для более здорового вас' },
-  'home.cta.explore': { en: 'Explore Programs', az: 'Proqramları Araşdırın', ru: 'Изучить Программы' },
-  'home.cta.classes': { en: 'View Classes', az: 'Dərsləri Görün', ru: 'Посмотреть Классы' },
+    // Authentication
+    'auth.login': {
+      en: 'Login',
+      az: 'Giriş',
+      ru: 'Вход'
+    },
+    'auth.register': {
+      en: 'Register',
+      az: 'Qeydiyyat',
+      ru: 'Регистрация'
+    },
+    'auth.email': {
+      en: 'Email',
+      az: 'E-poçt',
+      ru: 'Email'
+    },
+    'auth.password': {
+      en: 'Password',
+      az: 'Şifrə',
+      ru: 'Пароль'
+    },
+    'auth.name': {
+      en: 'Full Name',
+      az: 'Tam Ad',
+      ru: 'Полное Имя'
+    },
+    'auth.login_btn': {
+      en: 'Sign In',
+      az: 'Daxil Ol',
+      ru: 'Войти'
+    },
+    'auth.register_btn': {
+      en: 'Create Account',
+      az: 'Hesab Yarat',
+      ru: 'Создать Аккаунт'
+    },
+    'auth.no_account': {
+      en: "Don't have an account?",
+      az: 'Hesabınız yoxdur?',
+      ru: 'Нет аккаунта?'
+    },
+    'auth.have_account': {
+      en: 'Already have an account?',
+      az: 'Artıq hesabınız var?',
+      ru: 'Уже есть аккаунт?'
+    },
 
-  // Features
-  'features.programs.title': { en: 'Diet Programs', az: 'Diet Proqramları', ru: 'Диетические Программы' },
-  'features.programs.desc': { en: 'Personalized nutrition plans designed by experts', az: 'Ekspertlər tərəfindən hazırlanmış fərdi qida planları', ru: 'Персонализированные планы питания, разработанные экспертами' },
-  'features.classes.title': { en: 'Live Classes', az: 'Canlı Dərslər', ru: 'Живые Классы' },
-  'features.classes.desc': { en: 'Join interactive sessions with nutrition professionals', az: 'Qida mütəxəssisləri ilə interaktiv sessiyalara qoşulun', ru: 'Присоединяйтесь к интерактивным сессиям с профессионалами по питанию' },
-  'features.support.title': { en: '24/7 Support', az: '24/7 Dəstək', ru: 'Поддержка 24/7' },
-  'features.support.desc': { en: 'Get help whenever you need it from our experts', az: 'Ekspertlərimizdən ehtiyacınız olanda kömək alın', ru: 'Получайте помощь от наших экспертов когда вам нужно' },
+    // Dashboard
+    'dashboard.welcome': {
+      en: 'Welcome',
+      az: 'Xoş gəlmisiniz',
+      ru: 'Добро пожаловать'
+    },
+    'dashboard.programs': {
+      en: 'My Programs',
+      az: 'Mənim Proqramlarım',
+      ru: 'Мои Программы'
+    },
+    'dashboard.tickets': {
+      en: 'My Classes',
+      az: 'Mənim Dərslərim',
+      ru: 'Мои Занятия'
+    },
+    'dashboard.no_programs': {
+      en: 'No programs purchased yet',
+      az: 'Hələ proqram alınmayıb',
+      ru: 'Пока не куплено программ'
+    },
+    'dashboard.no_tickets': {
+      en: 'No class tickets purchased yet',
+      az: 'Hələ dərs bileti alınmayıb',
+      ru: 'Пока не куплено билетов на занятия'
+    },
 
-  // Common
-  'common.price': { en: 'Price', az: 'Qiymət', ru: 'Цена' },
-  'common.buy': { en: 'Buy Now', az: 'İndi Al', ru: 'Купить Сейчас' },
-  'common.read_more': { en: 'Read More', az: 'Daha Çox Oxu', ru: 'Читать Далее' },
-  'common.date': { en: 'Date', az: 'Tarix', ru: 'Дата' },
-  'common.time': { en: 'Time', az: 'Vaxt', ru: 'Время' },
-  'common.duration': { en: 'Duration', az: 'Müddət', ru: 'Продолжительность' },
-  'common.instructor': { en: 'Instructor', az: 'Müəllim', ru: 'Инструктор' },
-  'common.participants': { en: 'Participants', az: 'İştirakçılar', ru: 'Участники' },
-  'common.loading': { en: 'Loading...', az: 'Yüklənir...', ru: 'Загрузка...' },
-  'common.search': { en: 'Search', az: 'Axtar', ru: 'Поиск' },
-  'common.filter': { en: 'Filter', az: 'Filtr', ru: 'Фильтр' },
-  'common.save': { en: 'Save', az: 'Saxla', ru: 'Сохранить' },
-  'common.cancel': { en: 'Cancel', az: 'Ləğv et', ru: 'Отменить' },
-  'common.edit': { en: 'Edit', az: 'Redaktə et', ru: 'Редактировать' },
-  'common.delete': { en: 'Delete', az: 'Sil', ru: 'Удалить' },
+    // Admin
+    'admin.title': {
+      en: 'Admin Dashboard',
+      az: 'Admin Paneli',
+      ru: 'Панель Администратора'
+    },
+    'admin.manage_blog': {
+      en: 'Manage Blog',
+      az: 'Bloqu İdarə Et',
+      ru: 'Управление Блогом'
+    },
+    'admin.manage_programs': {
+      en: 'Manage Programs',
+      az: 'Proqramları İdarə Et',
+      ru: 'Управление Программами'
+    },
+    'admin.manage_classes': {
+      en: 'Manage Classes',
+      az: 'Dərsləri İdarə Et',
+      ru: 'Управление Занятиями'
+    },
+    'admin.manage_users': {
+      en: 'Manage Users',
+      az: 'İstifadəçiləri İdarə Et',
+      ru: 'Управление Пользователями'
+    },
+    'admin.add_new': {
+      en: 'Add New',
+      az: 'Yeni Əlavə Et',
+      ru: 'Добавить Новый'
+    },
 
-  // Auth
-  'auth.login': { en: 'Login', az: 'Giriş', ru: 'Вход' },
-  'auth.register': { en: 'Register', az: 'Qeydiyyat', ru: 'Регистрация' },
-  'auth.email': { en: 'Email', az: 'E-poçt', ru: 'Электронная почта' },
-  'auth.password': { en: 'Password', az: 'Şifrə', ru: 'Пароль' },
-  'auth.name': { en: 'Name', az: 'Ad', ru: 'Имя' },
-  'auth.login_btn': { en: 'Login', az: 'Daxil ol', ru: 'Войти' },
-  'auth.register_btn': { en: 'Register', az: 'Qeydiyyatdan keç', ru: 'Зарегистрироваться' },
-  'auth.no_account': { en: "Don't have an account?", az: 'Hesabınız yoxdur?', ru: 'Нет аккаунта?' },
-  'auth.have_account': { en: 'Already have an account?', az: 'Artıq hesabınız var?', ru: 'Уже есть аккаунт?' },
+    // Contact
+    'contact.title': {
+      en: 'Contact Us',
+      az: 'Bizimlə Əlaqə',
+      ru: 'Свяжитесь с Нами'
+    },
+    'contact.chat': {
+      en: 'Live Chat Support',
+      az: 'Canlı Söhbət Dəstəyi',
+      ru: 'Поддержка в Чате'
+    },
+    'contact.type': {
+      en: 'Type your message...',
+      az: 'Mesajınızı yazın...',
+      ru: 'Введите ваше сообщение...'
+    },
+    'contact.send': {
+      en: 'Send',
+      az: 'Göndər',
+      ru: 'Отправить'
+    },
 
-  // Dashboard
-  'dashboard.welcome': { en: 'Welcome back', az: 'Xoş gəlmisiniz', ru: 'Добро пожаловать' },
-  'dashboard.programs': { en: 'My Programs', az: 'Mənim Proqramlarım', ru: 'Мои Программы' },
-  'dashboard.tickets': { en: 'My Tickets', az: 'Mənim Biletlərim', ru: 'Мои Билеты' },
-  'dashboard.no_programs': { en: 'No programs purchased yet', az: 'Hələ heç bir proqram alınmayıb', ru: 'Пока не куплено программ' },
-  'dashboard.no_tickets': { en: 'No tickets purchased yet', az: 'Hələ heç bir bilet alınmayıb', ru: 'Пока не куплено билетов' },
+    // Common
+    'common.read_more': {
+      en: 'Read More',
+      az: 'Daha Çox Oxu',
+      ru: 'Читать Далее'
+    },
+    'common.buy': {
+      en: 'Purchase Program',
+      az: 'Proqram Al',
+      ru: 'Купить Программу'
+    },
+    'common.date': {
+      en: 'Date',
+      az: 'Tarix',
+      ru: 'Дата'
+    },
+    'common.time': {
+      en: 'Time',
+      az: 'Vaxt',
+      ru: 'Время'
+    },
+    'common.instructor': {
+      en: 'Instructor',
+      az: 'Müəllim',
+      ru: 'Инструктор'
+    },
+    'common.participants': {
+      en: 'Participants',
+      az: 'İştirakçılar',
+      ru: 'Участники'
+    },
+    'common.cancel': {
+      en: 'Cancel',
+      az: 'Ləğv Et',
+      ru: 'Отмена'
+    },
+    'common.save': {
+      en: 'Save',
+      az: 'Saxla',
+      ru: 'Сохранить'
+    },
 
-  // Contact
-  'contact.title': { en: 'Contact Us', az: 'Bizimlə Əlaqə', ru: 'Свяжитесь с Нами' },
-  'contact.chat': { en: 'Live Chat', az: 'Canlı Söhbət', ru: 'Живой Чат' },
-  'contact.type': { en: 'Type your message...', az: 'Mesajınızı yazın...', ru: 'Введите ваше сообщение...' },
-  'contact.send': { en: 'Send', az: 'Göndər', ru: 'Отправить' },
+    // Language selector
+    'lang.select': {
+      en: 'Select Language',
+      az: 'Dil Seçin',
+      ru: 'Выберите Язык'
+    },
+    'lang.choose': {
+      en: 'Choose your preferred language to continue',
+      az: 'Davam etmək üçün üstünlük verdiyiniz dili seçin',
+      ru: 'Выберите предпочитаемый язык для продолжения'
+    }
+  };
 
-  // Admin
-  'admin.title': { en: 'Admin Panel', az: 'Admin Panel', ru: 'Админ Панель' },
-  'admin.manage_blog': { en: 'Manage Blog Posts', az: 'Bloq Yazılarını İdarə et', ru: 'Управлять Постами Блога' },
-  'admin.manage_programs': { en: 'Manage Diet Programs', az: 'Diet Proqramlarını İdarə et', ru: 'Управлять Диетическими Программами' },
-  'admin.manage_classes': { en: 'Manage Live Classes', az: 'Canlı Dərsləri İdarə et', ru: 'Управлять Живыми Классами' },
-  'admin.manage_users': { en: 'Manage Users', az: 'İstifadəçiləri İdarə et', ru: 'Управлять Пользователями' },
-  'admin.add_new': { en: 'Add New', az: 'Yeni Əlavə et', ru: 'Добавить Новый' },
-};
-
-export const t = (key: string, language: Language): string => {
   return translations[key]?.[language] || key;
 };

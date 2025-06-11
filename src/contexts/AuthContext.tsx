@@ -29,17 +29,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await fetchUserProfile(session.user);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        } else if (session?.user) {
+          await fetchUserProfile(session.user);
+        }
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getInitialSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
+      
       if (session?.user) {
         await fetchUserProfile(session.user);
       } else {
@@ -53,6 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (authUser: SupabaseUser) => {
     try {
+      console.log('Fetching profile for user:', authUser.email);
+      
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
@@ -61,17 +72,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching profile:', error);
+        
+        // If profile doesn't exist, try to create it
+        if (error.code === 'PGRST116') {
+          console.log('Profile not found, creating new profile...');
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: authUser.id,
+              email: authUser.email || '',
+              name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+              is_admin: authUser.email === 'admin@gmail.com'
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('Error creating profile:', createError);
+            return;
+          }
+
+          if (newProfile) {
+            setUser({
+              id: newProfile.id,
+              email: newProfile.email,
+              name: newProfile.name,
+              isAdmin: newProfile.is_admin,
+              purchases: [],
+              tickets: []
+            });
+          }
+        }
         return;
       }
 
       if (profile) {
+        console.log('Profile found:', profile);
         setUser({
           id: profile.id,
           email: profile.email,
           name: profile.name,
           isAdmin: profile.is_admin,
-          purchases: [], // TODO: Implement purchases
-          tickets: [] // TODO: Implement tickets
+          purchases: [],
+          tickets: []
         });
       }
     } catch (error) {
@@ -81,8 +124,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      console.log('Attempting login for:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password
       });
 
@@ -92,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data.user) {
+        console.log('Login successful for:', data.user.email);
         await fetchUserProfile(data.user);
         return true;
       }
@@ -105,12 +151,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, name: string): Promise<boolean> => {
     try {
+      console.log('Attempting registration for:', email);
+      
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: {
-            name: name
+            name: name.trim()
           }
         }
       });
@@ -121,7 +169,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data.user) {
-        // Profile will be created automatically by the trigger
+        console.log('Registration successful for:', data.user.email);
+        
+        // Wait a bit for the trigger to create the profile
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Fetch the profile
+        await fetchUserProfile(data.user);
         return true;
       }
 
@@ -134,6 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async (): Promise<void> => {
     try {
+      console.log('Logging out user');
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Logout error:', error);
