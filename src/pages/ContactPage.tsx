@@ -1,27 +1,17 @@
 import React, { useState } from 'react';
 import { Send, MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useData } from '../contexts/DataContext';
-import { useAuth } from '../contexts/AuthContext';
 import { t } from '../data/translations';
 import { ChatMessage } from '../types';
 
 const ContactPage: React.FC = () => {
   const { language } = useLanguage();
-  const { createSupportTicket, addMessageToTicket, supportTickets } = useData();
-  const { user } = useAuth();
   const [message, setMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [currentTicketId, setCurrentTicketId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
-
-    if (!user) {
-      alert(language === 'en' ? 'Please login to use live chat' : language === 'az' ? 'Canlı söhbət üçün giriş edin' : 'Войдите для использования чата');
-      return;
-    }
 
     // Add user message
     const userMessage: ChatMessage = {
@@ -29,19 +19,10 @@ const ContactPage: React.FC = () => {
       text: message,
       sender: 'user',
       timestamp: new Date().toLocaleTimeString(),
-      senderName: user.name
+      senderName: 'You'
     };
 
-    if (!currentTicketId) {
-      // Create new support ticket
-      const ticketId = createSupportTicket(user.email, user.name, message);
-      setCurrentTicketId(ticketId);
-      setChatMessages([userMessage]);
-    } else {
-      // Add message to existing ticket
-      addMessageToTicket(currentTicketId, userMessage);
-      setChatMessages(prev => [...prev, userMessage]);
-    }
+    setChatMessages(prev => [...prev, userMessage]);
 
     // Simulate support response
     setIsTyping(true);
@@ -75,28 +56,12 @@ const ContactPage: React.FC = () => {
         senderName: 'Support Team'
       };
 
-      if (currentTicketId) {
-        addMessageToTicket(currentTicketId, supportMessage);
-      }
       setChatMessages(prev => [...prev, supportMessage]);
       setIsTyping(false);
     }, 2000);
 
     setMessage('');
   };
-
-  // Load existing ticket messages if user has an open ticket
-  React.useEffect(() => {
-    if (user) {
-      const userTicket = supportTickets.find(ticket => 
-        ticket.userEmail === user.email && ticket.status === 'open'
-      );
-      if (userTicket) {
-        setCurrentTicketId(userTicket.id);
-        setChatMessages(userTicket.messages);
-      }
-    }
-  }, [user, supportTickets]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -130,8 +95,8 @@ const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
-                    <p className="text-gray-600">info@nutrilife.com</p>
-                    <p className="text-gray-600">support@nutrilife.com</p>
+                    <p className="text-gray-600">info@integfito.com</p>
+                    <p className="text-gray-600">support@integfito.com</p>
                   </div>
                 </div>
 
@@ -143,8 +108,8 @@ const ContactPage: React.FC = () => {
                     <h3 className="font-semibold text-gray-900 mb-1">
                       {language === 'en' ? 'Phone' : language === 'az' ? 'Telefon' : 'Телефон'}
                     </h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-gray-600">+1 (555) 987-6543</p>
+                    <p className="text-gray-600">+994 (55) 123-4567</p>
+                    <p className="text-gray-600">+994 (55) 987-6543</p>
                   </div>
                 </div>
 
@@ -157,9 +122,9 @@ const ContactPage: React.FC = () => {
                       {language === 'en' ? 'Address' : language === 'az' ? 'Ünvan' : 'Адрес'}
                     </h3>
                     <p className="text-gray-600">
-                      {language === 'en' && '123 Health Street, Wellness City, WC 12345'}
-                      {language === 'az' && '123 Sağlamlıq Küçəsi, Sağlamlıq Şəhəri, SŞ 12345'}
-                      {language === 'ru' && '123 Улица Здоровья, Город Велнес, ГВ 12345'}
+                      {language === 'en' && 'Baku, Azerbaijan'}
+                      {language === 'az' && 'Bakı, Azərbaycan'}
+                      {language === 'ru' && 'Баку, Азербайджан'}
                     </p>
                   </div>
                 </div>
@@ -228,13 +193,6 @@ const ContactPage: React.FC = () => {
                       {language === 'az' && 'Dəstək komandamızla söhbətə başlayın'}
                       {language === 'ru' && 'Начните разговор с нашей командой поддержки'}
                     </p>
-                    {!user && (
-                      <p className="text-sm text-gray-400 mt-2">
-                        {language === 'en' && 'Please login to use live chat'}
-                        {language === 'az' && 'Canlı söhbət üçün giriş edin'}
-                        {language === 'ru' && 'Войдите для использования чата'}
-                      </p>
-                    )}
                   </div>
                 )}
 
@@ -290,13 +248,12 @@ const ContactPage: React.FC = () => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    placeholder={user ? t('contact.type', language) : (language === 'en' ? 'Please login to chat...' : language === 'az' ? 'Söhbət üçün giriş edin...' : 'Войдите для чата...')}
-                    disabled={!user}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    placeholder={t('contact.type', language)}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   />
                   <button
                     onClick={handleSendMessage}
-                    disabled={!message.trim() || !user}
+                    disabled={!message.trim()}
                     className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                   >
                     <Send className="w-4 h-4" />

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, Settings } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useAuth } from '../contexts/AuthContext';
 import { t } from '../data/translations';
 import { Language } from '../types';
 
@@ -10,7 +9,6 @@ const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
-  const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
 
   const languages: { code: Language; name: string; flag: string }[] = [
@@ -111,35 +109,6 @@ const Header: React.FC = () => {
                 </div>
               )}
             </div>
-
-            {/* User Menu */}
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <Link
-                  to={isAdmin ? "/admin" : "/dashboard"}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <User className="w-4 h-4" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {isAdmin ? t('nav.admin', language) : t('nav.dashboard', language)}
-                  </span>
-                </Link>
-                <button
-                  onClick={logout}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors text-red-600"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="text-sm font-medium">{t('nav.logout', language)}</span>
-                </button>
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
-              >
-                {t('nav.login', language)}
-              </Link>
-            )}
 
             {/* Mobile menu button */}
             <button

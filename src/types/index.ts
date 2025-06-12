@@ -1,26 +1,3 @@
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  isAdmin: boolean;
-  purchases: Purchase[];
-  tickets: Ticket[];
-}
-
-export interface Purchase {
-  id: string;
-  programId: string;
-  date: string;
-  price: number;
-}
-
-export interface Ticket {
-  id: string;
-  classId: string;
-  purchaseDate: string;
-  price: number;
-}
-
 export interface BlogPost {
   id: string;
   title: Record<Language, string>;
@@ -62,13 +39,4 @@ export interface ChatMessage {
   sender: 'user' | 'support';
   timestamp: string;
   senderName?: string;
-}
-
-export interface SupportTicket {
-  id: string;
-  userEmail: string;
-  userName: string;
-  status: 'open' | 'closed';
-  createdAt: string;
-  messages: ChatMessage[];
 }
