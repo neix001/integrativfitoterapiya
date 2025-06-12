@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, User, LogOut, Settings } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import { t } from '../data/translations';
 import { Language } from '../types';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
+  const { user, profile, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const languages: { code: Language; name: string; flag: string }[] = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -18,6 +22,15 @@ const Header: React.FC = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-40">
@@ -110,6 +123,71 @@ const Header: React.FC = () => {
               )}
             </div>
 
+            {/* User Menu */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-green-600" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 hidden sm:block">
+                    {profile?.name}
+                  </span>
+                </button>
+
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1">
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setIsUserDropdownOpen(false)}
+                      className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 transition-colors"
+                    >
+                      <User className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-700">{t('nav.dashboard', language)}</span>
+                    </Link>
+                    {profile?.is_admin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                        className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-700">{t('nav.admin', language)}</span>
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        setIsUserDropdownOpen(false);
+                        handleSignOut();
+                      }}
+                      className="w-full flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-700">{t('nav.logout', language)}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-green-600 font-medium transition-colors"
+                >
+                  {t('nav.login', language)}
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  {t('nav.register', language)}
+                </Link>
+              </div>
+            )}
+
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -169,6 +247,37 @@ const Header: React.FC = () => {
               >
                 {t('nav.contact', language)}
               </Link>
+              
+              {user && (
+                <>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  <Link
+                    to="/dashboard"
+                    className="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t('nav.dashboard', language)}
+                  </Link>
+                  {profile?.is_admin && (
+                    <Link
+                      to="/admin"
+                      className="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {t('nav.admin', language)}
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleSignOut();
+                    }}
+                    className="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-left"
+                  >
+                    {t('nav.logout', language)}
+                  </button>
+                </>
+              )}
             </nav>
           </div>
         )}
