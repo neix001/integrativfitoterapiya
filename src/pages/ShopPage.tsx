@@ -1,15 +1,28 @@
 import React from 'react';
 import { Clock, Star, Check } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useData } from '../contexts/DataContext';
 import { t } from '../data/translations';
 
 const ShopPage: React.FC = () => {
+  const { user } = useAuth();
   const { language } = useLanguage();
   const { dietPrograms, purchaseProgram } = useData();
 
-  const handlePurchase = (programId: string) => {
-    purchaseProgram(programId);
+  const handlePurchase = async (programId: string) => {
+    if (!user) {
+      alert(language === 'en' ? 'Please login to purchase programs' : 
+            language === 'az' ? 'Proqram almaq üçün daxil olun' : 
+            'Войдите, чтобы купить программы');
+      return;
+    }
+
+    try {
+      await purchaseProgram(programId);
+    } catch (error: any) {
+      alert(error.message);
+    }
   };
 
   return (

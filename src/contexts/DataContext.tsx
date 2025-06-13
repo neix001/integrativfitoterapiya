@@ -13,6 +13,15 @@ interface DataContextType {
   purchaseProgram: (programId: string) => Promise<void>;
   purchaseTicket: (classId: string) => Promise<void>;
   refreshData: () => Promise<void>;
+  createBlogPost: (post: Omit<BlogPost, 'id'>) => Promise<void>;
+  updateBlogPost: (id: string, post: Partial<BlogPost>) => Promise<void>;
+  deleteBlogPost: (id: string) => Promise<void>;
+  createDietProgram: (program: Omit<DietProgram, 'id'>) => Promise<void>;
+  updateDietProgram: (id: string, program: Partial<DietProgram>) => Promise<void>;
+  deleteDietProgram: (id: string) => Promise<void>;
+  createLiveClass: (liveClass: Omit<LiveClass, 'id'>) => Promise<void>;
+  updateLiveClass: (id: string, liveClass: Partial<LiveClass>) => Promise<void>;
+  deleteLiveClass: (id: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -169,11 +178,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
 
     try {
-      // For now, we'll simulate user purchases
-      // In a real app, you'd have a user_purchases table
-      setUserPurchases([]);
+      const { data, error } = await supabase
+        .from('user_purchases')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      setUserPurchases(data || []);
     } catch (error) {
       console.error('Error fetching user purchases:', error);
+      setUserPurchases([]);
     }
   };
 
@@ -181,11 +197,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
 
     try {
-      // For now, we'll simulate user tickets
-      // In a real app, you'd have a user_tickets table
-      setUserTickets([]);
+      const { data, error } = await supabase
+        .from('user_tickets')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      setUserTickets(data || []);
     } catch (error) {
       console.error('Error fetching user tickets:', error);
+      setUserTickets([]);
     }
   };
 
@@ -200,19 +223,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Program not found');
       }
 
-      // In a real app, you'd process payment and create a purchase record
-      console.log(`Program ${programId} purchased by user ${user.id}`);
-      
-      // Simulate adding to user purchases
-      const newPurchase: UserPurchase = {
-        id: Date.now().toString(),
-        userId: user.id,
-        programId,
-        purchaseDate: new Date().toISOString(),
-        status: 'active'
-      };
+      const { error } = await supabase
+        .from('user_purchases')
+        .insert({
+          user_id: user.id,
+          program_id: programId,
+          status: 'active'
+        });
 
-      setUserPurchases(prev => [...prev, newPurchase]);
+      if (error) throw error;
+
+      await fetchUserPurchases();
       
       alert(`Program "${program.title.en}" purchased successfully!`);
     } catch (error: any) {
@@ -236,34 +257,258 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Class is fully booked');
       }
 
-      // In a real app, you'd process payment and create a ticket record
-      console.log(`Ticket for class ${classId} purchased by user ${user.id}`);
+      const { error: ticketError } = await supabase
+        .from('user_tickets')
+        .insert({
+          user_id: user.id,
+          class_id: classId,
+          status: 'confirmed'
+        });
 
-      // Update class participants count
-      const { error } = await supabase
+      if (ticketError) throw ticketError;
+
+      const { error: updateError } = await supabase
         .from('live_classes')
         .update({ current_participants: liveClass.currentParticipants + 1 })
         .eq('id', classId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      // Simulate adding to user tickets
-      const newTicket: UserTicket = {
-        id: Date.now().toString(),
-        userId: user.id,
-        classId,
-        purchaseDate: new Date().toISOString(),
-        status: 'confirmed'
-      };
-
-      setUserTickets(prev => [...prev, newTicket]);
-      
-      // Refresh live classes to update participant count
-      await fetchLiveClasses();
+      await Promise.all([fetchUserTickets(), fetchLiveClasses()]);
       
       alert(`Ticket for "${liveClass.title.en}" purchased successfully!`);
     } catch (error: any) {
       console.error('Ticket purchase error:', error);
+      throw error;
+    }
+  };
+
+  // Admin functions
+  const createBlogPost = async (post: Omit<BlogPost, 'id'>) => {
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .insert({
+          title_en: post.title.en,
+          title_az: post.title.az,
+          title_ru: post.title.ru,
+          content_en: post.content.en,
+          content_az: post.content.az,
+          content_ru: post.content.ru,
+          excerpt_en: post.excerpt.en,
+          excerpt_az: post.excerpt.az,
+          excerpt_ru: post.excerpt.ru,
+          image: post.image,
+          author: post.author
+        });
+
+      if (error) throw error;
+      await fetchBlogPosts();
+    } catch (error) {
+      console.error('Error creating blog post:', error);
+      throw error;
+    }
+  };
+
+  const updateBlogPost = async (id: string, post: Partial<BlogPost>) => {
+    try {
+      const updateData: any = {};
+      if (post.title) {
+        updateData.title_en = post.title.en;
+        updateData.title_az = post.title.az;
+        updateData.title_ru = post.title.ru;
+      }
+      if (post.content) {
+        updateData.content_en = post.content.en;
+        updateData.content_az = post.content.az;
+        updateData.content_ru = post.content.ru;
+      }
+      if (post.excerpt) {
+        updateData.excerpt_en = post.excerpt.en;
+        updateData.excerpt_az = post.excerpt.az;
+        updateData.excerpt_ru = post.excerpt.ru;
+      }
+      if (post.image) updateData.image = post.image;
+      if (post.author) updateData.author = post.author;
+
+      const { error } = await supabase
+        .from('blog_posts')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchBlogPosts();
+    } catch (error) {
+      console.error('Error updating blog post:', error);
+      throw error;
+    }
+  };
+
+  const deleteBlogPost = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('blog_posts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchBlogPosts();
+    } catch (error) {
+      console.error('Error deleting blog post:', error);
+      throw error;
+    }
+  };
+
+  const createDietProgram = async (program: Omit<DietProgram, 'id'>) => {
+    try {
+      const { error } = await supabase
+        .from('diet_programs')
+        .insert({
+          title_en: program.title.en,
+          title_az: program.title.az,
+          title_ru: program.title.ru,
+          description_en: program.description.en,
+          description_az: program.description.az,
+          description_ru: program.description.ru,
+          price: program.price,
+          image: program.image,
+          duration: program.duration,
+          features_en: program.features.en,
+          features_az: program.features.az,
+          features_ru: program.features.ru
+        });
+
+      if (error) throw error;
+      await fetchDietPrograms();
+    } catch (error) {
+      console.error('Error creating diet program:', error);
+      throw error;
+    }
+  };
+
+  const updateDietProgram = async (id: string, program: Partial<DietProgram>) => {
+    try {
+      const updateData: any = {};
+      if (program.title) {
+        updateData.title_en = program.title.en;
+        updateData.title_az = program.title.az;
+        updateData.title_ru = program.title.ru;
+      }
+      if (program.description) {
+        updateData.description_en = program.description.en;
+        updateData.description_az = program.description.az;
+        updateData.description_ru = program.description.ru;
+      }
+      if (program.features) {
+        updateData.features_en = program.features.en;
+        updateData.features_az = program.features.az;
+        updateData.features_ru = program.features.ru;
+      }
+      if (program.price !== undefined) updateData.price = program.price;
+      if (program.image) updateData.image = program.image;
+      if (program.duration) updateData.duration = program.duration;
+
+      const { error } = await supabase
+        .from('diet_programs')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchDietPrograms();
+    } catch (error) {
+      console.error('Error updating diet program:', error);
+      throw error;
+    }
+  };
+
+  const deleteDietProgram = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('diet_programs')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchDietPrograms();
+    } catch (error) {
+      console.error('Error deleting diet program:', error);
+      throw error;
+    }
+  };
+
+  const createLiveClass = async (liveClass: Omit<LiveClass, 'id'>) => {
+    try {
+      const { error } = await supabase
+        .from('live_classes')
+        .insert({
+          title_en: liveClass.title.en,
+          title_az: liveClass.title.az,
+          title_ru: liveClass.title.ru,
+          description_en: liveClass.description.en,
+          description_az: liveClass.description.az,
+          description_ru: liveClass.description.ru,
+          date: liveClass.date,
+          time: liveClass.time,
+          duration: liveClass.duration,
+          price: liveClass.price,
+          max_participants: liveClass.maxParticipants,
+          current_participants: liveClass.currentParticipants || 0,
+          instructor: liveClass.instructor
+        });
+
+      if (error) throw error;
+      await fetchLiveClasses();
+    } catch (error) {
+      console.error('Error creating live class:', error);
+      throw error;
+    }
+  };
+
+  const updateLiveClass = async (id: string, liveClass: Partial<LiveClass>) => {
+    try {
+      const updateData: any = {};
+      if (liveClass.title) {
+        updateData.title_en = liveClass.title.en;
+        updateData.title_az = liveClass.title.az;
+        updateData.title_ru = liveClass.title.ru;
+      }
+      if (liveClass.description) {
+        updateData.description_en = liveClass.description.en;
+        updateData.description_az = liveClass.description.az;
+        updateData.description_ru = liveClass.description.ru;
+      }
+      if (liveClass.date) updateData.date = liveClass.date;
+      if (liveClass.time) updateData.time = liveClass.time;
+      if (liveClass.duration !== undefined) updateData.duration = liveClass.duration;
+      if (liveClass.price !== undefined) updateData.price = liveClass.price;
+      if (liveClass.maxParticipants !== undefined) updateData.max_participants = liveClass.maxParticipants;
+      if (liveClass.currentParticipants !== undefined) updateData.current_participants = liveClass.currentParticipants;
+      if (liveClass.instructor) updateData.instructor = liveClass.instructor;
+
+      const { error } = await supabase
+        .from('live_classes')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchLiveClasses();
+    } catch (error) {
+      console.error('Error updating live class:', error);
+      throw error;
+    }
+  };
+
+  const deleteLiveClass = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('live_classes')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchLiveClasses();
+    } catch (error) {
+      console.error('Error deleting live class:', error);
       throw error;
     }
   };
@@ -278,7 +523,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading,
       purchaseProgram,
       purchaseTicket,
-      refreshData
+      refreshData,
+      createBlogPost,
+      updateBlogPost,
+      deleteBlogPost,
+      createDietProgram,
+      updateDietProgram,
+      deleteDietProgram,
+      createLiveClass,
+      updateLiveClass,
+      deleteLiveClass
     }}>
       {children}
     </DataContext.Provider>

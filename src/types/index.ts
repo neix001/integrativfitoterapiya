@@ -33,18 +33,18 @@ export interface LiveClass {
 
 export interface UserPurchase {
   id: string;
-  userId: string;
-  programId: string;
-  purchaseDate: string;
+  user_id: string;
+  program_id: string;
   status: 'active' | 'completed';
+  created_at: string;
 }
 
 export interface UserTicket {
   id: string;
-  userId: string;
-  classId: string;
-  purchaseDate: string;
+  user_id: string;
+  class_id: string;
   status: 'confirmed' | 'attended' | 'cancelled';
+  created_at: string;
 }
 
 export type Language = 'en' | 'az' | 'ru';

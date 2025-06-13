@@ -1,15 +1,28 @@
 import React from 'react';
 import { Calendar, Clock, Users, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useData } from '../contexts/DataContext';
 import { t } from '../data/translations';
 
 const ClassesPage: React.FC = () => {
+  const { user } = useAuth();
   const { language } = useLanguage();
   const { liveClasses, purchaseTicket } = useData();
 
-  const handlePurchaseTicket = (classId: string) => {
-    purchaseTicket(classId);
+  const handlePurchaseTicket = async (classId: string) => {
+    if (!user) {
+      alert(language === 'en' ? 'Please login to purchase tickets' : 
+            language === 'az' ? 'Bilet almaq üçün daxil olun' : 
+            'Войдите, чтобы купить билеты');
+      return;
+    }
+
+    try {
+      await purchaseTicket(classId);
+    } catch (error: any) {
+      alert(error.message);
+    }
   };
 
   const formatDate = (dateString: string) => {

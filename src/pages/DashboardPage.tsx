@@ -12,15 +12,15 @@ const DashboardPage: React.FC = () => {
 
   const getUserPrograms = () => {
     return userPurchases.map(purchase => {
-      const program = dietPrograms.find(p => p.id === purchase.programId);
-      return program ? { ...program, purchaseDate: purchase.purchaseDate, status: purchase.status } : null;
+      const program = dietPrograms.find(p => p.id === purchase.program_id);
+      return program ? { ...program, purchaseDate: purchase.created_at, status: purchase.status } : null;
     }).filter(Boolean);
   };
 
   const getUserClasses = () => {
     return userTickets.map(ticket => {
-      const liveClass = liveClasses.find(c => c.id === ticket.classId);
-      return liveClass ? { ...liveClass, purchaseDate: ticket.purchaseDate, status: ticket.status } : null;
+      const liveClass = liveClasses.find(c => c.id === ticket.class_id);
+      return liveClass ? { ...liveClass, purchaseDate: ticket.created_at, status: ticket.status } : null;
     }).filter(Boolean);
   };
 
